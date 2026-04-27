@@ -5,10 +5,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
+      --primary: #FFCC00; /* Kuning CoreTax */
+      --primary-hover: #E6B800;
+      --secondary: #E31E24; /* Merah */
+      --accent: #1A224E; /* Biru CoreTax */
       --bg: #f8fafc;
-      --text: #1e293b;
+      --text: #1A224E;
       --text-muted: #64748b;
       --border: #e2e8f0;
       --white: #ffffff;
@@ -52,21 +54,36 @@
     .btn {
       width: 100%;
       background: var(--primary);
-      color: var(--white);
-      border: none;
+      color: var(--accent); /* Tulisan Biru di background Kuning */
+      border: 1px solid var(--primary-hover);
       padding: 12px;
       border-radius: 8px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
       font-size: 14px;
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 8px;
     }
-    .btn:hover { background: var(--primary-hover); }
-    .btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+    .btn:hover { 
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #cbd5e1; }
+
+    #reset-btn {
+      background: var(--secondary);
+      color: var(--white);
+      border: 1px solid var(--secondary);
+      margin-top: 12px;
+    }
+    #reset-btn:hover {
+      background: #c41212;
+      border-color: #c41212;
+    }
 
     #logs {
       font-size: 12px;
@@ -80,13 +97,13 @@
     }
     .log-entry { margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
     .log-success { color: #059669; }
-    .log-info { color: var(--primary); }
-    .log-error { color: #dc2626; }
+    .log-info { color: var(--accent); }
+    .log-error { color: var(--secondary); }
 
     .loader {
       width: 16px;
       height: 16px;
-      border: 2px solid #FFF;
+      border: 2px solid var(--accent);
       border-bottom-color: transparent;
       border-radius: 50%;
       display: inline-block;
@@ -123,7 +140,7 @@
     <span id="btn-text">Verify & Start</span>
   </button>
 
-  <button id="reset-btn" class="btn" style="display: none; background: #64748b; margin-top: 10px;">
+  <button id="reset-btn" class="btn" style="display: none;">
     <span>Reset Session</span>
   </button>
 
