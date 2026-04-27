@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Coretax Downloader",
+  "version": "1.0",
+  "description": "Download dokumen dari Coretax",
+  "action": {
+    "default_popup": "downloader.html",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "permissions": ["storage", "activeTab", "scripting", "downloads"],
+  "host_permissions": ["https://coretaxdjp.pajak.go.id/*"]
+}
