@@ -83,16 +83,27 @@ function showMainScreen(user) {
 
 googleLoginBtn.addEventListener('click', loginWithGoogle);
 
-logoutBtn.addEventListener('click', () => {
-  // Cabut cached token di Chrome agar akun bisa diganti
-  chrome.identity.getAuthToken({ interactive: false }, (token) => {
-    if (token) chrome.identity.removeCachedAuthToken({ token });
-  });
-  chrome.storage.local.remove('userInfo', () => {
-    appState = 'IDLE';
-    sessionData = { accessToken: null, taxpayerId: null, documents: [] };
-    logs.innerHTML = '<div class="log-entry log-info">Buka portal Coretax lalu klik "Verify & Start".</div>';
-    showLoginScreen();
+logoutBtn.addEventListener('click', async () => {
+  logoutBtn.disabled = true;
+  chrome.identity.getAuthToken({ interactive: false }, async (token) => {
+    try {
+      if (token) {
+        await fetch('http://localhost:4000/auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        chrome.identity.removeCachedAuthToken({ token });
+      }
+    } catch (_) {
+      // lanjut logout meski server tidak bisa dicapai
+    }
+    chrome.storage.local.remove('userInfo', () => {
+      logoutBtn.disabled = false;
+      appState = 'IDLE';
+      sessionData = { accessToken: null, taxpayerId: null, documents: [] };
+      logs.innerHTML = '<div class="log-entry log-info">Buka portal Coretax lalu klik "Verify & Start".</div>';
+      showLoginScreen();
+    });
   });
 });
 
