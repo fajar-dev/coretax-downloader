@@ -16,21 +16,28 @@ function resetSession() {
 
 // ── Auth ──
 
-async function loginWithGoogle() {
+function loginWithGoogle() {
   DOM.googleLoginBtn.disabled = true;
   setLoginStatus('Mengalihkan ke login Google...', 'loading');
-  try {
-    const googleToken = await ChromeAuth.getToken(true);
-    setLoginStatus('Memverifikasi dengan server...');
-    const data = await AuthAPI.login(googleToken);
-    if (!data.success) throw new Error(data.message || 'Login gagal.');
-    const user = data.data.user;
-    await ChromeStorage.set(CONFIG.STORAGE_KEY_USER, user);
-    showMainScreen(user);
-  } catch (err) {
-    setLoginStatus(err.message);
-    DOM.googleLoginBtn.disabled = false;
-  }
+
+  // Daftarkan listener sebelum mengirim pesan agar tidak ada race condition.
+  chrome.runtime.onMessage.addListener(function handleLoginResult(message) {
+    if (message.action !== 'LOGIN_COMPLETE' && message.action !== 'LOGIN_ERROR') return;
+
+    chrome.runtime.onMessage.removeListener(handleLoginResult);
+
+    if (message.action === 'LOGIN_COMPLETE') {
+      showMainScreen(message.user);
+    } else {
+      setLoginStatus(message.error || 'Login gagal.');
+      DOM.googleLoginBtn.disabled = false;
+    }
+  });
+
+  // Background menangani OAuth interaktif sehingga popup tidak tertutup
+  // saat dialog Google muncul. Jika popup tetap tertutup, init code
+  // akan menemukan user di storage dan langsung ke main screen.
+  chrome.runtime.sendMessage({ action: 'START_LOGIN' });
 }
 
 async function logout() {
@@ -205,3 +212,11 @@ DOM.deselectAllBtn.addEventListener('click', () => {
     showLoginScreen();
   }
 })();
+
+// Tangani kasus popup dibuka kembali setelah background menyelesaikan login
+// (popup sempat tertutup saat dialog OAuth muncul).
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === 'LOGIN_COMPLETE') {
+    showMainScreen(message.user);
+  }
+});
