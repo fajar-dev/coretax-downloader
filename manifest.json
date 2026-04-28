@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Coretax Synchronizer",
-  "version": "2.1",
+  "version": "3.2",
   "description": "Synchronize dokumen dari Coretax ke IS",
   "action": {
-    "default_popup": "sync.html",
+    "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
   "icons": {
@@ -14,7 +14,8 @@
   "host_permissions": [
     "https://coretaxdjp.pajak.go.id/*",
     "https://www.googleapis.com/*",
-    "http://localhost:4000/*"
+    "http://localhost:4000/*",
+    "https://transit.is5x.nusa.net.id/*"
   ],
   "oauth2": {
     "client_id": "1028176199908-td4hg9bljqijr8rtr5ir1hbjegrkg2mi.apps.googleusercontent.com",

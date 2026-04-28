@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/sync.css">
+</head>
+<body>
+
+  <!-- ── Login Screen ── -->
+  <div id="login-screen">
+    <div class="login-logo">
+      <img src="icon.png" alt="logo">
+      <h2>Coretax Synchronizer</h2>
+      <p>Login diperlukan untuk mengakses ekstensi</p>
+    </div>
+    <div class="login-card">
+      <p>Masuk Menggunakan akun GWS Nusanet</p>
+      <button id="google-login-btn">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.7 20-21 0-1.3-.2-2.7-.5-4z"/>
+          <path fill="#34A853" d="M6.3 14.7l7 5.1C15.2 16 19.3 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 16.3 3 9.7 7.9 6.3 14.7z"/>
+          <path fill="#FBBC05" d="M24 45c5.5 0 10.5-1.9 14.4-5.1l-6.6-5.5C29.8 36 27 37 24 37c-5.7 0-10.6-3.9-11.8-9.1l-7 5.4C8.9 40.8 15.9 45 24 45z"/>
+          <path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-.9 2.8-2.8 5.1-5.4 6.6l6.6 5.5C41.1 37.3 45 31.3 45 24c0-1.3-.2-2.7-.5-4z"/>
+        </svg>
+        Masuk dengan Google
+      </button>
+      <div id="login-status"></div>
+    </div>
+  </div>
+
+  <!-- ── Main Screen ── -->
+  <div id="main-screen" style="display: none;">
+    <div class="header">
+      <img src="icon.png" style="width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;">
+      <div class="header-info">
+        <h2>Coretax Synchronizer</h2>
+        <div id="logged-in-as"></div>
+      </div>
+      <button id="logout-btn">Logout</button>
+    </div>
+
+    <div class="card">
+      <div class="status-item">
+        <span class="status-label">Status:</span>
+        <span id="status-val" class="status-value">Ready</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Taxpayer ID:</span>
+        <span id="taxpayer-id-val" class="status-value">-</span>
+      </div>
+      <div class="status-item" id="doc-count-container" style="display: none;">
+        <span class="status-label">Documents:</span>
+        <span id="doc-count-val" class="status-value">0</span>
+      </div>
+    </div>
+
+    <div id="file-list-container" class="card">
+      <div class="file-list-header">
+        <span class="file-list-header-title">Pilih Dokumen</span>
+        <div class="file-list-actions">
+          <button id="select-all-btn" class="select-btn">Pilih Semua</button>
+          <button id="deselect-all-btn" class="select-btn">Hapus Semua</button>
+        </div>
+      </div>
+      <div id="file-list" class="file-list"></div>
+    </div>
+
+    <button id="btn" class="btn">
+      <span class="loader" id="loader"></span>
+      <span id="btn-text">Verify & Start</span>
+    </button>
+
+    <button id="reset-btn" class="btn" style="display: none;">
+      <span>Reset Session</span>
+    </button>
+
+    <div id="logs">
+      <div class="log-entry log-info">Buka portal Coretax lalu klik "Verify & Start".</div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sync.js"></script>
+</body>
+</html>
