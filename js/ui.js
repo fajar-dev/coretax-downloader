@@ -18,8 +18,14 @@ const DOM = {
   logs:              document.getElementById('logs'),
   fileListContainer: document.getElementById('file-list-container'),
   fileList:          document.getElementById('file-list'),
+  selectionCount:    document.getElementById('selection-count'),
   selectAllBtn:      document.getElementById('select-all-btn'),
   deselectAllBtn:    document.getElementById('deselect-all-btn'),
+  actionRow:   document.getElementById('action-row'),
+  syncBtn:     document.getElementById('sync-btn'),
+  syncLoader:  document.getElementById('sync-loader'),
+  saveBtn:     document.getElementById('save-btn'),
+  saveLoader:  document.getElementById('save-loader'),
 };
 
 // ── Logging ──
@@ -40,8 +46,11 @@ function getSelectedDocuments(documents) {
 
 function updateSyncBtn(documents) {
   const selected = getSelectedDocuments(documents);
-  DOM.btnText.textContent = `Sync ${selected.length} dari ${documents.length} Dokumen`;
-  DOM.btn.disabled = selected.length === 0;
+  DOM.selectionCount.textContent = `Memilih ${selected.length} dari ${documents.length} dokumen`;
+  const none = selected.length === 0;
+  DOM.btn.disabled     = none;
+  DOM.syncBtn.disabled = none;
+  DOM.saveBtn.disabled = none;
 }
 
 function renderFileList(documents) {
@@ -80,9 +89,20 @@ function renderFileList(documents) {
 
 // ── UI state machine ──
 
-function setBusy(isBusy) {
-  DOM.btn.disabled = isBusy;
-  DOM.loader.style.display = isBusy ? 'inline-block' : 'none';
+// target: 'verify' | 'sync' | 'save'
+function setBusy(isBusy, target = 'verify') {
+  if (target === 'verify') {
+    DOM.btn.disabled         = isBusy;
+    DOM.loader.style.display = isBusy ? 'inline-block' : 'none';
+  } else if (target === 'sync') {
+    DOM.syncBtn.disabled         = isBusy;
+    DOM.saveBtn.disabled         = isBusy;
+    DOM.syncLoader.style.display = isBusy ? 'inline-block' : 'none';
+  } else if (target === 'save') {
+    DOM.saveBtn.disabled         = isBusy;
+    DOM.syncBtn.disabled         = isBusy;
+    DOM.saveLoader.style.display = isBusy ? 'inline-block' : 'none';
+  }
 }
 
 function applyState(state, session) {
@@ -93,6 +113,8 @@ function applyState(state, session) {
       DOM.docCountContainer.style.display = 'none';
       DOM.btnText.textContent             = 'Verify & Start';
       DOM.btn.disabled                    = false;
+      DOM.btn.style.display               = 'flex';
+      DOM.actionRow.style.display         = 'none';
       DOM.resetBtn.style.display          = 'none';
       DOM.fileListContainer.style.display = 'none';
       break;
@@ -105,19 +127,22 @@ function applyState(state, session) {
       DOM.fileListContainer.style.display = 'block';
       renderFileList(session.documents);
       updateSyncBtn(session.documents);
+      DOM.btn.style.display               = 'none';
+      DOM.actionRow.style.display         = 'flex';
       DOM.resetBtn.style.display          = 'flex';
       break;
 
     case STATE.SYNCING:
       DOM.statusVal.textContent  = 'Syncing...';
-      DOM.btn.disabled           = true;
       DOM.resetBtn.style.display = 'none';
       break;
 
     case STATE.FINISH:
       DOM.statusVal.textContent            = 'Completed';
-      DOM.btnText.textContent              = 'Semua Dokumen Disync';
-      DOM.btn.disabled                     = true;
+      DOM.btn.style.display                = 'none';
+      DOM.actionRow.style.display          = 'flex';
+      DOM.syncBtn.disabled                 = true;
+      DOM.saveBtn.disabled                 = false;
       DOM.resetBtn.style.display           = 'flex';
       DOM.resetBtn.children[0].textContent = 'Reset / New Session';
       break;

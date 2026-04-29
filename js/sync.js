@@ -141,7 +141,7 @@ async function startSync() {
 
   appState = STATE.SYNCING;
   applyState(appState, session);
-  setBusy(true);
+  setBusy(true, 'sync');
 
   let googleToken;
   try {
@@ -149,12 +149,11 @@ async function startSync() {
   } catch {
     addLog('Gagal mendapatkan token auth. Silakan login kembali.', 'error');
     appState = STATE.VERIFIED;
-    setBusy(false);
+    setBusy(false, 'sync');
     applyState(appState, session);
     return;
   }
 
-  // Phase 1: download all selected documents
   const files = [];
   for (let i = 0; i < selectedDocs.length; i++) {
     try {
@@ -168,12 +167,11 @@ async function startSync() {
   if (files.length === 0) {
     addLog('Tidak ada dokumen berhasil diunduh.', 'error');
     appState = STATE.VERIFIED;
-    setBusy(false);
+    setBusy(false, 'sync');
     applyState(appState, session);
     return;
   }
 
-  // Phase 2: upload all at once
   addLog(`Mengirim ${files.length} dokumen ke server...`, 'info');
   try {
     const result = await UploadAPI.upload(googleToken, files);
@@ -184,8 +182,39 @@ async function startSync() {
   }
 
   appState = STATE.FINISH;
-  setBusy(false);
+  setBusy(false, 'sync');
   applyState(appState, session);
+}
+
+// ── Save locally ──
+
+async function saveLocal() {
+  const selectedDocs = getSelectedDocuments(session.documents);
+  if (selectedDocs.length === 0) return;
+
+  setBusy(true, 'save');
+  addLog('Menyimpan dokumen ke lokal...', 'info');
+
+  for (let i = 0; i < selectedDocs.length; i++) {
+    try {
+      const { blob, fileName } = await downloadDocumentBlob(selectedDocs[i], i, selectedDocs.length);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      addLog(`Error: ${err.message}`, 'error');
+    }
+  }
+
+  addLog('Selesai menyimpan.', 'success');
+  setBusy(false, 'save');
+  DOM.saveBtn.disabled = false;
+  if (appState !== STATE.FINISH) DOM.syncBtn.disabled = false;
 }
 
 // ── Event listeners ──
@@ -194,8 +223,15 @@ DOM.googleLoginBtn.addEventListener('click', loginWithGoogle);
 DOM.logoutBtn.addEventListener('click', logout);
 
 DOM.btn.addEventListener('click', () => {
-  if (appState === STATE.IDLE)     verifyCredentials();
-  else if (appState === STATE.VERIFIED) startSync();
+  if (appState === STATE.IDLE) verifyCredentials();
+});
+
+DOM.syncBtn.addEventListener('click', () => {
+  if (appState === STATE.VERIFIED) startSync();
+});
+
+DOM.saveBtn.addEventListener('click', () => {
+  if (appState === STATE.VERIFIED || appState === STATE.FINISH) saveLocal();
 });
 
 DOM.resetBtn.addEventListener('click', resetSession);

@@ -64,12 +64,24 @@
         </div>
       </div>
       <div id="file-list" class="file-list"></div>
+      <div id="selection-count" class="selection-count"></div>
     </div>
 
     <button id="btn" class="btn">
       <span class="loader" id="loader"></span>
       <span id="btn-text">Verify & Start</span>
     </button>
+
+    <div id="action-row" style="display: none;">
+      <button id="sync-btn" class="btn btn-sync">
+        <span class="loader" id="sync-loader"></span>
+        <span>Sync</span>
+      </button>
+      <button id="save-btn" class="btn btn-save">
+        <span class="loader" id="save-loader"></span>
+        <span>Simpan</span>
+      </button>
+    </div>
 
     <button id="reset-btn" class="btn" style="display: none;">
       <span>Reset Session</span>

@@ -217,6 +217,29 @@ body {
 
 #reset-btn:hover { background: #c41212; border-color: #c41212; }
 
+#action-row {
+  display: flex;
+  gap: 10px;
+}
+
+#sync-btn  { flex: 1; }
+
+#save-btn {
+  flex: 1;
+  background: var(--accent);
+  color: var(--white);
+  border-color: var(--accent);
+}
+
+#save-btn:hover { background: #141b3e; border-color: #141b3e; }
+
+.selection-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-align: right;
+}
+
 /* ── Logs ── */
 
 #logs {
@@ -326,7 +349,7 @@ body {
 }
 
 .file-item-sub {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
