@@ -124,20 +124,15 @@ function sanitizeFileName(name) {
   return name.replace(/[/\\?%*:|"<>]/g, '-');
 }
 
-async function syncDocument(doc, googleToken, index, total) {
+async function downloadDocumentBlob(doc, index, total) {
   const label = doc.FileName || doc.DocumentTitle || `Dokumen ${index + 1}`;
-  addLog(`[${index + 1}/${total}] Mengambil ${label}...`, 'info');
+  addLog(`[${index + 1}/${total}] Mengunduh ${label}...`, 'info');
 
   const blob = await CoretaxAPI.downloadDocument(session.accessToken, session.taxpayerId, doc);
   if (!blob) throw new Error(`Gagal membaca konten file: ${label}`);
 
   const fileName = sanitizeFileName(doc.FileName || `${doc.DocumentNumber || 'Document'}.pdf`);
-  addLog(`Mengirim ${fileName} ke server...`, 'info');
-
-  const result = await UploadAPI.upload(googleToken, blob, fileName);
-  if (!result.success) throw new Error(`Upload gagal: ${result.message || 'Unknown error'}`);
-
-  addLog(`Berhasil dikirim: ${result.data?.objectName || fileName}`, 'success');
+  return { blob, fileName };
 }
 
 async function startSync() {
@@ -159,16 +154,35 @@ async function startSync() {
     return;
   }
 
+  // Phase 1: download all selected documents
+  const files = [];
   for (let i = 0; i < selectedDocs.length; i++) {
     try {
-      await syncDocument(selectedDocs[i], googleToken, i, selectedDocs.length);
+      const file = await downloadDocumentBlob(selectedDocs[i], i, selectedDocs.length);
+      files.push(file);
     } catch (err) {
       addLog(`Error: ${err.message}`, 'error');
     }
-    await new Promise(r => setTimeout(r, CONFIG.SYNC_DELAY_MS));
   }
 
-  addLog(`Selesai! ${selectedDocs.length} dokumen disync.`, 'success');
+  if (files.length === 0) {
+    addLog('Tidak ada dokumen berhasil diunduh.', 'error');
+    appState = STATE.VERIFIED;
+    setBusy(false);
+    applyState(appState, session);
+    return;
+  }
+
+  // Phase 2: upload all at once
+  addLog(`Mengirim ${files.length} dokumen ke server...`, 'info');
+  try {
+    const result = await UploadAPI.upload(googleToken, files);
+    if (!result.success) throw new Error(result.message || 'Unknown error');
+    addLog(`Selesai! ${files.length} dokumen berhasil disync.`, 'success');
+  } catch (err) {
+    addLog(`Upload gagal: ${err.message}`, 'error');
+  }
+
   appState = STATE.FINISH;
   setBusy(false);
   applyState(appState, session);

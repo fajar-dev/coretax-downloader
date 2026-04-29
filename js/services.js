@@ -79,7 +79,18 @@ const CoretaxAPI = {
     const res = await fetch(`${CONFIG.CORETAX_API}/list/listTaxpayerDocuments`, {
       method: 'POST',
       headers: this._headers(accessToken),
-      body: JSON.stringify({ TaxpayerAggregateIdentifier: taxpayerId }),
+      body: JSON.stringify({
+        TaxpayerAggregateIdentifier: taxpayerId,
+        Filters: [
+          {
+            PropertyName: "DocumentTypeConfigurationName",
+            Value: "Bukti Potong PPh Pasal",
+            MatchMode: "startsWith",
+            CaseSensitive: false,
+            AsString: true
+          }
+        ],
+      }),
     });
     if (!res.ok) throw new Error('Gagal mengambil daftar dokumen.');
     const data = await res.json();
@@ -114,9 +125,12 @@ const CoretaxAPI = {
 // ── Upload API ──
 
 const UploadAPI = {
-  async upload(googleToken, blob, fileName) {
+  // files: Array<{ blob: Blob, fileName: string }>
+  async upload(googleToken, files) {
     const formData = new FormData();
-    formData.append('file', blob, fileName);
+    for (const { blob, fileName } of files) {
+      formData.append('files', blob, fileName);
+    }
     const res = await fetch(`${CONFIG.BASE_API}/sync`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${googleToken}` },

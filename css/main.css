@@ -282,7 +282,7 @@ body {
 .select-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .file-list {
-  max-height: 180px;
+  max-height: 350px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
