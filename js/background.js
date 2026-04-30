@@ -1,7 +1,7 @@
 // Background service worker menangani interactive OAuth agar popup tidak tertutup
 // saat dialog Google muncul dan memutus async flow.
 
-const BASE_API        = 'http://localhost:4000/api';
+const BASE_API        = 'https://transit.is5x.nusa.net.id/coretax-sync';
 const STORAGE_KEY_USER = 'userInfo';
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
